@@ -12,6 +12,12 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   genmsg
+  rospy
+  sensor_msgs
+  visualization_msgs
+  geometry_msgs
+  message_generation
+  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -48,11 +54,34 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(FILES Num.msg)
+add_message_files(
+    FILES
+    Num.msg # Delete this one later.
+    Float32XY.msg
+    Float32XYZ.msg
+    Float32R.msg
+    Face.msg
+    Hand.msg
+    Saliency.msg
+    Utterance.msg
+    Sound.msg
+    Speech.msg
+    RealSenseParam.msg
+    FaceRequest.msg
+    FaceResponse.msg
+    CandidateFace.msg
+    CandidateHand.msg
+    CandidateSaliency.msg
+    CandidateSound.msg
+    CandidateSpeech.msg
+    EstablishedFace.msg
+    EstablishedHand.msg
+    EstablishedSaliency.msg
+    )
 add_service_files(FILES AddTwoInts.srv)
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(DEPENDENCIES std_msgs)
+generate_messages(DEPENDENCIES std_msgs sensor_msgs)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -83,10 +112,10 @@ generate_messages(DEPENDENCIES std_msgs)
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+ generate_dynamic_reconfigure_options(
+   cfg/vision_pipeline.cfg
+   cfg/hearing_pipeline.cfg
+ )
 
 ###################################
 ## catkin specific configuration ##
@@ -98,11 +127,11 @@ generate_messages(DEPENDENCIES std_msgs)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES sensor_fusion
-#  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
-)
+    #  INCLUDE_DIRS include
+    #  LIBRARIES sensor_fusion
+       CATKIN_DEPENDS message_runtime 
+    #  DEPENDS system_lib
+    )
 
 ###########
 ## Build ##
@@ -111,9 +140,9 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+    # include
+    ${catkin_INCLUDE_DIRS}
+    )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -128,6 +157,10 @@ add_dependencies(talker sensor_fusion_generate_messages_cpp)
 add_executable(listener src/listener.cpp)
 target_link_libraries(listener ${catkin_LIBRARIES})
 add_dependencies(listener sensor_fusion_generate_messages_cpp)
+
+add_executable(fusion src/Fusion.cpp)
+target_link_libraries(fusion ${catkin_LIBRARIES})
+add_dependencies(fusion sensor_fusion_generate_messages_cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
