@@ -29,28 +29,48 @@ class Camera{
          Camera(unsigned int cam_id){
              id = cam_id;
          }
-        // ~Camera(){}
-       
+         //~Camera(){}
          //Camera() = default;  
-
          Camera(const Camera& camera){}
-        
-         bool operator < (const Camera& camera) const
-         {
+         bool operator < (const Camera& camera) const{
              return id < camera.id;
          }
-         
-         void insert_hand_data(const unsigned int hand_id, sensor_fusion::CandidateHand::ConstPtr chand){
+         void insert_hand_data(const unsigned int hand_id,
+                               sensor_fusion::CandidateHand::ConstPtr chand){
              chands[hand_id] = chand;
          }
-         void insert_face_data(const unsigned int face_id, sensor_fusion::CandidateFace::ConstPtr cface){
+         void insert_face_data(const unsigned int face_id,
+                               sensor_fusion::CandidateFace::ConstPtr cface){
              cfaces[face_id] = cface;
          }
-         void insert_saliency_data(const unsigned int saliency_id, sensor_fusion::CandidateSaliency::ConstPtr csaliency){
+         void insert_saliency_data(const unsigned int saliency_id,
+                                   sensor_fusion::CandidateSaliency::ConstPtr csaliency){
              csaliencies[saliency_id] = csaliency;
          }
 
          unsigned int id;
+};
+
+// To be stored in the octomap
+struct PerceptionData{
+    /*
+    -----eface-------
+    eface.position.x = 0.0
+    eface.position.y = 0.0
+    eface.position.z = 0.0
+    eface.confidence = 0.0
+    eface.smile = 0.0
+    eface.frown = 0.0
+    eface.expressions = ""
+    eface.age = 0.0
+    eface.age_confidence = 0.0
+    eface.gender = 0
+    eface.gender_confidence = 0.0
+    eface.identity = 0
+    eface.identity_confidence = 0
+    -----ehands-------
+    -----esalients----
+    */
 };
 
 std::map<unsigned int, Camera> cameras;
@@ -65,7 +85,7 @@ void CandidateFaceCB(const sensor_fusion::CandidateFace::ConstPtr &msg){
     } else {
         Camera cm(msg->camera_id);
         cm.insert_face_data(msg->cface_id, msg);
-        cameras[cm.id] = cm;
+        //cameras[cm.id] = cm;
     }
 }
 void CandidateHandCB(const sensor_fusion::CandidateHand::ConstPtr &msg){
@@ -106,7 +126,36 @@ void PublishSaliencyMsg(const ros::Publisher& pub){
 
 // Timer call back
 void timerCB(const ros::TimerEvent& event){
-
+    // prepare established observations
+    // build face fuse groups
+    // iterate over all pipeline pairs without duplications
+    // iterate over all combinations of faces
+    // calculate distance
+    // if close enough,
+    // find existing face group that has camera_id1:face_id1
+    // prepare link
+    // add link to existing group
+    // create new group with these links
+    // create established face from each face group
+    // TODO: gender is the most likely of any of the group
+    // TODO: identity is the most likely of any of the group
+    // create established face for all faces not referenced in any group
+    // find face in any link of any group
+    // and convert to established face if not found
+    // fuse candidate hands between pipelines
+    // check existing hands and either fuse or add
+    // fuse candidate salient points between pipelines by calculating shortest vector distance
+    // check existing salient points and combine; here just match the vectors, only keep fused salient points for now
+    // fuse faces and saliencies to improve saliency confidence
+    // TODO: compare salient points and faces to improve faces
+    // fuse hands and saliencies to improve saliency confidence
+    // TODO: compare salient points and hands to improve hands
+    // fuse sounds and faces
+    // fuse sounds and hands
+    // fuse sounds and saliency
+    // output all established stuff
+    // TODO: send markers to RViz
+    // clean out old saliencies from self.csaliencies
 }
 
 int main(int argc, char** args){
