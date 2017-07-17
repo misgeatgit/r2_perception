@@ -29,9 +29,8 @@ class Camera{
          Camera(unsigned int cam_id){
              id = cam_id;
          }
-         //~Camera(){}
-         //Camera() = default;  
-         Camera(const Camera& camera){}
+         Camera() = default;  
+         
          bool operator < (const Camera& camera) const{
              return id < camera.id;
          }
@@ -53,24 +52,24 @@ class Camera{
 
 // To be stored in the octomap
 struct PerceptionData{
-    /*
-    -----eface-------
-    eface.position.x = 0.0
-    eface.position.y = 0.0
-    eface.position.z = 0.0
-    eface.confidence = 0.0
-    eface.smile = 0.0
-    eface.frown = 0.0
-    eface.expressions = ""
-    eface.age = 0.0
-    eface.age_confidence = 0.0
-    eface.gender = 0
-    eface.gender_confidence = 0.0
-    eface.identity = 0
-    eface.identity_confidence = 0
-    -----ehands-------
-    -----esalients----
-    */
+    sensor_fusion::EstablishedFace eface;
+    sensor_fusion::EstablishedHand ehand;
+    sensor_fusion::EstablishedSaliency esaliency;
+    PerceptionData(){
+        eface.position.x = 0.0;
+        eface.position.y = 0.0;
+        eface.position.z = 0.0;
+        eface.confidence = 0.0;
+        eface.smile = 0.0;
+        eface.frown = 0.0;
+        eface.expressions.push_back("");
+        eface.age = 0.0;
+        eface.age_confidence = 0.0;
+        eface.gender = 0;
+        eface.gender_confidence = 0.0;
+        eface.identity = 0;
+        eface.identity_confidence = 0;
+    }
 };
 
 std::map<unsigned int, Camera> cameras;
@@ -85,7 +84,7 @@ void CandidateFaceCB(const sensor_fusion::CandidateFace::ConstPtr &msg){
     } else {
         Camera cm(msg->camera_id);
         cm.insert_face_data(msg->cface_id, msg);
-        //cameras[cm.id] = cm;
+        cameras[cm.id] = cm;
     }
 }
 void CandidateHandCB(const sensor_fusion::CandidateHand::ConstPtr &msg){
@@ -96,7 +95,7 @@ void CandidateHandCB(const sensor_fusion::CandidateHand::ConstPtr &msg){
     } else {
         Camera cm(msg->camera_id);
         cm.insert_hand_data(msg->chand_id, msg);
-        // cameras[cm.id] = cm;
+        cameras[cm.id] = cm;
     }
 }
 void CandidateSaliencyCB(const sensor_fusion::CandidateSaliency::ConstPtr &msg){
@@ -107,7 +106,7 @@ void CandidateSaliencyCB(const sensor_fusion::CandidateSaliency::ConstPtr &msg){
     } else {
         Camera cm(msg->camera_id);
         cm.insert_saliency_data(msg->csaliency_id, msg);
-        // cameras[cm.id] = cm;
+        cameras[cm.id] = cm;
     }
 }
 
