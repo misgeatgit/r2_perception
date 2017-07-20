@@ -154,7 +154,7 @@ add_executable(fusion src/Fusion.cpp)
 target_link_libraries(fusion ${catkin_LIBRARIES})
 add_dependencies(fusion sensor_fusion_generate_messages_cpp)
 
-ADD_SUBDIRECTORY (timeoctomap)
+#ADD_SUBDIRECTORY (timeoctomap)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
