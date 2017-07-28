@@ -1,39 +1,61 @@
-#include <mutex>
-#include <thread>
-
-#include "ros/ros.h"
-#include "ros/time.h"
 
 // Dynamic reconfigure includes.
 #include "dynamic_reconfigure/server.h"
-
 // Auto-generated from cfg/ directory.
 #include "sensor_fusion/hearing_pipelineConfig.h"
 #include "sensor_fusion/vision_pipelineConfig.h"
 
-// Auto-generated from msg/ directory.
-#include "sensor_fusion/CandidateFace.h"
-#include "sensor_fusion/CandidateHand.h"
-#include "sensor_fusion/CandidateSaliency.h"
-#include "sensor_fusion/EstablishedFace.h"
-#include "sensor_fusion/EstablishedHand.h"
-#include "sensor_fusion/EstablishedSaliency.h"
 
-#include "timeoctomap/TimeOctomap.h"
+#include "sensor_fusion/timeoctomap/TimeOctomap.h"
 
-
+#ifndef _FUSION_H_
+#define _FUSION_H_
 /*
  * Design Rationale
  * - Modularity - Need to adapt to the addition of new sensors with minimal
  *   configuration.
  * - Plugin architectures - Loading and unloading of fusers should be smooth.
  * - Opencog integration? TODO
+ *
+ *   Non functional requirements
+ *   ---------------------------
+ *   - Composability 
+ *   - Plug and play
+ *   - Message based
+ *   -  
+ *
+ *   Functional requirements
+ *   -----------------------
+ *   - Fusion combination 
+ *      - face + saliency
+ *      - hand + saliency
+ *      - saliency crossing
  */
-class Fusion {
-    // Implements fusion algorithms
-    void virtual run(ros::NodeHandle n);
-    void virtual publish(void);
-    // Load Fusion libraries
-    // Unload Fusers
+#define DECLARE_MODULE(MODNAME)                                   \
+    /* load/unload functions for the Module interface */          \
+extern "C" const char* fusion_module_id(void) {                   \
+    return "fusion_module::" #MODNAME;                            \
+}                                                                 \
+extern "C" FusionModule * fusion_module_load() {                  \
+    return new MODNAME();                                         \
+}                                                                 \
+extern "C" void fusion_module_unload(FusionModule* m) {           \
+    delete m;                                                     \
+}                                                                 \
+inline const char * MODNAME::id(void) {                           \
+    return "fusion_module::" #MODNAME;                            \
+}
+
+class FusionModule {
+    public:
+        // Implements fusion algorithms
+        void virtual run(ros::NodeHandle* n) = 0;
+        void virtual publish (void) = 0;
+//        virtual ~FusionModule();
 };
 
+/*
+ * FusionModule->run
+ * FusionModule->publish
+ */
+#endif
