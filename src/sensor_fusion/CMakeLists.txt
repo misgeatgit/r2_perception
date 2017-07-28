@@ -131,7 +131,7 @@ catkin_package(
     #  LIBRARIES sensor_fusion
        CATKIN_DEPENDS message_runtime 
     #  DEPENDS system_lib
-    )
+)
 
 ###########
 ## Build ##
@@ -148,11 +148,6 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/sensor_fusion.cpp
 # )
-include_directories(include ${catkin_INCLUDE_DIRS})
-
-add_executable(fusion src/Fusion.cpp)
-target_link_libraries(fusion ${catkin_LIBRARIES})
-add_dependencies(fusion sensor_fusion_generate_messages_cpp)
 
 #ADD_SUBDIRECTORY (timeoctomap)
 
@@ -229,4 +224,4 @@ add_dependencies(fusion sensor_fusion_generate_messages_cpp)
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
 
-
+ADD_SUBDIRECTORY(src/cpp)
