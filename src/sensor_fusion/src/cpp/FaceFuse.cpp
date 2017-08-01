@@ -90,7 +90,7 @@ void FaceFuse::processCFaces(void){
             }
         }
     }
-    
+
     for (std::vector<FaceLink>& group : facegroups){
         init_eface();
         for(const FaceLink& link : group){
