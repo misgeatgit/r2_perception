@@ -41,7 +41,12 @@ include_directories(
 
  
 add_executable(sensor_fusion_node FaceFuse.cpp)
-target_link_libraries(sensor_fusion_node ${catkin_LIBRARIES})
+target_link_libraries(sensor_fusion_node 
+	${catkin_LIBRARIES}
+	${OCTOMAP_LIBRARY}
+	${OCTOMAP_OCTOMATH_LIBRARY}
+)
+
 add_dependencies(sensor_fusion_node sensor_fusion_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against

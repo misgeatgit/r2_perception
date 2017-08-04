@@ -16,7 +16,16 @@ class SaliencyFuse : public FusionModule {
     public:
         void run(ros::NodeHandle* n);
         void publish (void);
-
 };
 
+
+/* Saliency Fusion algo
+
+     - Pa = Aa + ANa
+       Pb = Bb + BNb
+
+       find A and B then decide how close are Pa and Pb using the fitness
+       function  Fc = 1/2(Pa+Pb)
+       if Fc <= Threshold, then fuse them.
+*/
 

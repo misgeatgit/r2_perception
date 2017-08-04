@@ -6,7 +6,6 @@
 #include "sensor_fusion/vision_pipelineConfig.h"
 
 
-#include "sensor_fusion/timeoctomap/TimeOctomap.h"
 
 #ifndef _FUSION_H_
 #define _FUSION_H_

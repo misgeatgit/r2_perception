@@ -1,10 +1,4 @@
-#include "Fusion.h"
-
-#include "ros/ros.h"
-#include "ros/time.h"
-
-#include "sensor_fusion/CandidateFace.h"
-#include "sensor_fusion/EstablishedFace.h"
+#include "FaceFuse.h"
 
 void FaceFuse::CFaceCB(const CandidateFace::ConstPtr &msg){
     auto it = cam_cfaces.find(msg->camera_id);
