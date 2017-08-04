@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(sensor_fusion)
 
+# add the 'lib' dir to cmake's module search path                                                                                                        
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/sensor_fusion/lib/") 
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -19,6 +22,20 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   dynamic_reconfigure
 )
+
+
+# Octomap
+FIND_PACKAGE(Octomap REQUIRED)          
+IF(OCTOMAP_FOUND AND OCTOMAP_LIBRARY)
+    MESSAGE(STATUS "Octomap not found!")
+    ADD_DEFINITIONS(-DHAVE_OCTOMAP) 
+    SET(HAVE_OCTOMAP 1)
+    INCLUDE_DIRECTORIES(${OCTOMAP_INCLUDE_DIR})
+    SET(OCTOMAP_DIR_MESSAGE "Octomap was found.")
+ELSE (OCTOMAP_FOUND AND OCTOMAP_LIBRARY)
+    MESSAGE(FATAL_ERROR "Octomap not found!")
+    SET(OCTOMAP_DIR_MESSAGE "Octomap missing: needed for the SpaceTime map.")
+ENDIF(OCTOMAP_FOUND AND OCTOMAP_LIBRARY)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -112,10 +129,10 @@ generate_messages(DEPENDENCIES std_msgs sensor_msgs)
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
- generate_dynamic_reconfigure_options(
-   cfg/vision_pipeline.cfg
-   cfg/hearing_pipeline.cfg
- )
+generate_dynamic_reconfigure_options(
+    cfg/vision_pipeline.cfg
+    cfg/hearing_pipeline.cfg
+    )
 
 ###################################
 ## catkin specific configuration ##
@@ -129,9 +146,9 @@ generate_messages(DEPENDENCIES std_msgs sensor_msgs)
 catkin_package(
     #  INCLUDE_DIRS include
     #  LIBRARIES sensor_fusion
-       CATKIN_DEPENDS message_runtime 
+    CATKIN_DEPENDS message_runtime 
     #  DEPENDS system_lib
-)
+    )
 
 ###########
 ## Build ##
