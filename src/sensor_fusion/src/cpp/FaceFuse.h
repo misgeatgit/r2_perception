@@ -23,6 +23,11 @@ using namespace sensor_fusion;
  */
 class FaceFuse : virtual public FusionModule {
     private:
+        ros::Subscriber _sub_leye_cface;
+        ros::Subscriber _sub_reye_cface;
+        ros::Subscriber _sub_rlsense_cface;
+        ros::Subscriber _sub_wideangle_cface;
+
         // (face_id, saliency_data)
         using cfaces = std::map<unsigned int, CandidateFace::ConstPtr>;
         // (camera_id, cfaces)
@@ -62,7 +67,7 @@ class FaceFuse : virtual public FusionModule {
         FaceFuse() : toctmap(100, 0.1, std::chrono::milliseconds(100)) {};
         // Implement Publish
 
-       void publish (void);
-       void run(ros::NodeHandle* node);
+        void publish (void);
+        void run(ros::NodeHandle* node);
 };
 

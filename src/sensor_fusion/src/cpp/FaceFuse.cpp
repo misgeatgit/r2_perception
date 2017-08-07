@@ -22,10 +22,10 @@ void FaceFuse::publish(void){
 }
 
 void FaceFuse::run(ros::NodeHandle* n){
-    ros::Subscriber sub_leye_cface = n->subscribe("lefteye/cface", 1000, &FaceFuse::CFaceCB, this);
-    ros::Subscriber sub_reye_cface = n->subscribe("righteye/cface", 1000, &FaceFuse::CFaceCB, this);
-    ros::Subscriber sub_rlsense_cface = n->subscribe("realsense/cface", 1000, &FaceFuse::CFaceCB, this);
-    ros::Subscriber sub_wideangle_cface = n->subscribe("wideangle/cface", 1000, &FaceFuse::CFaceCB, this);
+    _sub_leye_cface = n->subscribe("lefteye/cface", 1000, &FaceFuse::CFaceCB, this);
+    _sub_reye_cface = n->subscribe("righteye/cface", 1000, &FaceFuse::CFaceCB, this);
+    _sub_rlsense_cface = n->subscribe("realsense/cface", 1000, &FaceFuse::CFaceCB, this);
+    _sub_wideangle_cface = n->subscribe("wideangle/cface", 1000, &FaceFuse::CFaceCB, this);
 
     *pub_eface = n->advertise<EstablishedFace>("face", 5);
 }
