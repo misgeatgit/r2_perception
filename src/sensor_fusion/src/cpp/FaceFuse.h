@@ -14,7 +14,7 @@ using namespace sensor_fusion;
 
 
 /**
- *create three timeoctomaps
+ * create three timeoctomaps
  * iterate through each face key
  * calculate distance and fuse the points
  * store the fused in the third timeoctomap
@@ -40,7 +40,9 @@ class FaceFuse : virtual public FusionModule {
             unsigned int cface_id;
         };
 
-        opencog::TimeOctomap<EstablishedFace> toctmap;
+        opencog::TimeOctomap<EstablishedFace> octmapMain;
+        opencog::TimeOctomap<CandidateFace> octmapRightEye;
+        opencog::TimeOctomap<CandidateFace> octmapLeftEye;
         ros::Publisher * pub_eface;
 
         void init_eface(void){
@@ -60,11 +62,14 @@ class FaceFuse : virtual public FusionModule {
         }
 
         void processCFaces(void); //XXX When this function is invoked as a plugin how does it affect the control flow?
+        void rocessFaceCBWithOctomap(void);
     public:
         // Candidate Face topic call back handler
         void CFaceCB(const CandidateFace::ConstPtr &msg);
 
-        FaceFuse() : toctmap(100, 0.1, std::chrono::milliseconds(100)) {};
+        FaceFuse() : octmapMain(100, 0.1, std::chrono::milliseconds(100)),
+                     octmapRightEye(100, 0.1, std::chrono::milliseconds(100)),
+                     octmapLeftEye(100, 0.1, std::chron::milliseconds(100)){};
         // Implement Publish
 
         void publish (void);

@@ -9,6 +9,17 @@ void FaceFuse::CFaceCB(const CandidateFace::ConstPtr &msg){
     } else {
         cam_cfaces[msg->camera_id] = {{msg->cface_id, msg}};
     }
+    // Insert 3d face locations into individual octomaps.
+    // To be fused at later stage. 
+    if(msg->camera_id == 1) {
+        // LeftEye octomap
+        auto d = msg.position;
+        octmapLeftEye.insert_atom(point3d(d.x, d.y, d.z), msg);
+    } else if(msg->camera_id == 2) { //RightEye
+        // RightEye octomap
+        auto d = msg.position;
+        octmapRightEye.insert_atom(point3d(d.x, d.y, d.z), msg);
+    }
 }
 
 /* Called from the main module periodically*/
@@ -31,6 +42,10 @@ void FaceFuse::run(ros::NodeHandle* n){
 }
 
 #define FACE_FUSE_DISTANCE 0.2
+void FaceFuse::processFaceCBWithOctomap(void){
+ //TODO Feed every information to cotomap and implement a new fusion algorith
+}
+
 void FaceFuse::processCFaces(void){
     std::vector<std::vector<FaceLink>> facegroups;
 
@@ -112,6 +127,10 @@ void FaceFuse::processCFaces(void){
         eface.age_confidence /= n;
 
         efaces.push_back(eface);
+       
+       // Add to octomap as well
+       auto p = eface.position;
+       octmapMain.insert(3dpoint(p.x, p.y, p.z), eface);
     }
 
     // TODO: gender is the most likely of any of the group
@@ -127,9 +146,9 @@ void FaceFuse::processCFaces(void){
                     found = true;
                     break;
                 }
-                if(found){
+                if(found) {
                     break;
-                } else{
+                } else {
                     //FIXME
                     //eface.session_id = self.session_id
                     //eface.ts = ts
