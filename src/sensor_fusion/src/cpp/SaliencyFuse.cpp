@@ -20,7 +20,6 @@ void SaliencyFuse::CSaliencyCB(const sensor_fusion::CandidateSaliency::ConstPtr 
 // Fuse each saliency msg with all the subsequent messages in the buffer whenever they
 // meet the Fusing criteria stated in the doc.
 void SaliencyFuse::FuseCSalencyVec(void){
-
     // Read these from confg. statrting points
     float xa,ya,za; //x,y,z coordinates for starting point a
     float xb,yb,zb;  //x,y,z coordinates for starting point b
@@ -68,22 +67,30 @@ void SaliencyFuse::FuseCSalencyVec(void){
                 f.direction.x = pf_x; 
                 f.direction.y = pf_y; 
                 f.direction.z = pf_z; 
-                
-                _esaliencies.push(i);
+
+                f.motion = cs1.confidence* cs1.motion + cs2.confidence * cs2.motion;
+                f.vmap = cs1.vmap;
+                f.umap = cs1.umap;
+                // TODO fill in the rest of the params defined in the
+                // EstablishedSaliency message.
+                _esaliencies.push(f);
             } else {
                 EstablishedSaliency i,j;
-                i.direction.x = na_x; 
-                i.direction.y = na_y; 
-                i.direction.z = na_z; 
+                i.direction = cs1.direction; 
+                i.vmap = cs1.vmap;
+                i.umap = cs1.umap; 
+                i.motion = cs1.motion;
 
-                j.direction.z = nb_z; 
-                j.direction.z = nb_z; 
-                j.direction.z = nb_z; 
+                j.direction = cs2.direction; 
+                j.vmap = cs2.vmap;
+                j.umap = cs2.umap;
+                j.motion = cs2.motion;
 
+                // TODO fill in the rest of the params defined in the
+                // EstablishedSaliency message.
                 _esaliencies.push(i);
                 _esaliencies.push(j);
             }
-
         } 
 
         // clear the buffer
