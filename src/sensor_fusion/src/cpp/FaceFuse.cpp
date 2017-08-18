@@ -1,6 +1,7 @@
 #include "FaceFuse.h"
 
 void FaceFuse::CFaceCB(const CandidateFace::ConstPtr &msg){
+
     auto it = cam_cfaces.find(msg->camera_id);
     if(it != cam_cfaces.end()){
         //XXX do we need this mutex?
@@ -9,17 +10,46 @@ void FaceFuse::CFaceCB(const CandidateFace::ConstPtr &msg){
     } else {
         cam_cfaces[msg->camera_id] = {{msg->cface_id, msg}};
     }
-    // Insert 3d face locations into individual octomaps.
     // To be fused at later stage. 
-    if(msg->camera_id == 1) {
-        // LeftEye octomap
-        auto d = msg.position;
-        octmapLeftEye.insert_atom(point3d(d.x, d.y, d.z), msg);
-    } else if(msg->camera_id == 2) { //RightEye
-        // RightEye octomap
-        auto d = msg.position;
-        octmapRightEye.insert_atom(point3d(d.x, d.y, d.z), msg);
+    // LeftEye octomap
+    auto d = msg.position;
+    EstablishedFace fmsg;
+    std::vector<EstablishedFace> fmsgs;
+    TimeSlice<EstablishedFace> tmsg = octmapMain.get_current_timeslice();
+    
+    point3d_list pl;
+    for (typename AtomOcTree<T>::tree_iterator it2 = tmsg.map_tree.begin_tree(),
+            endit2 = tmsg.map_tree.end_tree();
+            it2 != endit2;
+            ++it2)
+    {
+        cam_cfaces.push_back(it2->getData());
     }
+
+    processCFaces();
+    
+    for (typename AtomOcTree<T>::tree_iterator it2 = tmsg.map_tree.begin_tree(),
+            endit2 = tmsg.map_tree.end_tree();
+            it2 != endit2;
+            ++it2)
+    {
+        auto it = std::find(efaces.begin(), efaces.end(), it2->getData() );
+
+        if( it == efaces.end()){
+           tmsg.map_tree.deleteNode(it2.getCoordinate());
+        }
+    }
+
+    for ( auto ef : efaces){
+    point3d_list pl(ef.position.x, ef.postion.y, ef.position.z);
+    octmapMain.insert_atom(pl,ef);
+    }
+
+    //   for (auto& p : pl)
+    //       map_tree.deleteNode(p);
+
+
+    //octmapMain.insert_atom(pl, fmsg);
 }
 
 /* Called from the main module periodically*/
@@ -43,7 +73,7 @@ void FaceFuse::run(ros::NodeHandle* n){
 
 #define FACE_FUSE_DISTANCE 0.2
 void FaceFuse::processFaceCBWithOctomap(void){
- //TODO Feed every information to cotomap and implement a new fusion algorith
+    //TODO Feed every information to cotomap and implement a new fusion algorith
 }
 
 void FaceFuse::processCFaces(void){
@@ -127,10 +157,10 @@ void FaceFuse::processCFaces(void){
         eface.age_confidence /= n;
 
         efaces.push_back(eface);
-       
-       // Add to octomap as well
-       auto p = eface.position;
-       octmapMain.insert(3dpoint(p.x, p.y, p.z), eface);
+
+        // Add to octomap as well
+        auto p = eface.position;
+        octmapMain.insert(3dpoint(p.x, p.y, p.z), eface);
     }
 
     // TODO: gender is the most likely of any of the group
